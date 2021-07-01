@@ -15,13 +15,15 @@ open class Contact  {
     private var id: Long? = null
     private var name: String? = null
     private var phone: String? = null
-    private var uid: Long? = null
 
-    constructor(id: Long, name: String, phone: String, uid: Long)  {
-        setUser(uid)
+    @ManyToOne(optional = true, cascade = [CascadeType.MERGE], fetch = FetchType.LAZY)
+    private var user: User? = null
+
+    constructor(id: Long, name: String, phone: String, user: User)  {
        setPhone(phone)
        setName(name)
        setId(id)
+       setUser(user)
     }
 
     constructor(id: Long?) {
@@ -43,10 +45,10 @@ open class Contact  {
 
     open fun getName() = name
 
-    open fun getUser() = uid;
+    open fun getUser() = user;
 
-    open fun setUser(id: Long?) {
-        uid= id
+    open fun setUser(usr: User) {
+        user = usr
     }
 
     open fun setName(n: String) {

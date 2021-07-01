@@ -16,14 +16,19 @@ class ContactService {
             throw Error("ValidationError")
         val contact = Contact()
         contact.setName(name)
-        contact.setUser(userId)
+        contact.setUser(User(userId))
         contact.setPhone(phone)
         em.persist(contact);
         return contact
     }
 
     fun getContacts(uid: Long): List<Contact> {
-        val query = em.createQuery("select new org.acme.models.Contact(c.id, c.name, c.phone, c.uid) from org.acme.models.Contact c where c.uid = :uid", Contact::class.java)
+        val query = em.createQuery("""
+			select new org.acme.models.Contact(c.id, c.name, c.phone, c.user)
+			from org.acme.models.Contact c
+			where c.user_id = :uid
+			"""
+		, Contact::class.java)
         return query.setParameter("uid", uid)
             .resultList
     }
