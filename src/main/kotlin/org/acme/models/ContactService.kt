@@ -26,7 +26,7 @@ class ContactService {
         val query = em.createQuery("""
 			select new org.acme.models.Contact(c.id, c.name, c.phone, c.user)
 			from org.acme.models.Contact c
-			where c.user_id = :uid
+			where c.user.id = :uid
 			"""
 		, Contact::class.java)
         return query.setParameter("uid", uid)

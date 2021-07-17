@@ -11,7 +11,7 @@ import javax.persistence.*
 open class Contact  {
     @Id
     @SequenceGenerator(name = "contactSeq", sequenceName = "contact_id_seq", allocationSize = 1, initialValue = 1)
-    @GeneratedValue(generator = "contactSeq")
+    @GeneratedValue(generator = "contactSeq", strategy = GenerationType.IDENTITY)
     private var id: Long? = null
     private var name: String? = null
     private var phone: String? = null

@@ -61,7 +61,11 @@ class GreetingResource {
     @Path("users/{uid}/contacts")
     //@Produces(MediaType.APPLICATION_JSON)
     fun getContacts(@PathParam uid: Long) : List<Contact> {
-        return contactService.getContacts(uid)
+        //try {
+            return contactService.getContacts(uid)
+        //} catch(e: Exception) {
+            //throw NotFoundException("no user ")
+        //}
     }
 
     @POST

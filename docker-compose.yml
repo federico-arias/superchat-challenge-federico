@@ -9,3 +9,10 @@ services:
       - POSTGRES_PASSWORD=postgres
     ports:
       - "5433:5432"
+
+  kotlin:
+    build: 
+      context: .
+      dockerfile: src/main/docker/Dockerfile.jvm
+    ports:
+      - "1313:8080"

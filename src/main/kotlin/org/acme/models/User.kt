@@ -10,6 +10,8 @@ open class User {
     @GeneratedValue(generator = "usrSeq")
     private var id: Long? = null
 
+    //private var webhooks: Listof<String>
+
     /*
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = [CascadeType.MERGE], orphanRemoval = true)
     private val contacts = mutableListOf<Contact>()
