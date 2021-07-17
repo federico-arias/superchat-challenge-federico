@@ -9,6 +9,19 @@ open class User {
     @SequenceGenerator(name = "usrSeq", sequenceName = "usr_id_seq", allocationSize = 1, initialValue = 1)
     @GeneratedValue(generator = "usrSeq")
     private var id: Long? = null
+    private var webhook: String? = null
+
+    private var name: String? = null
+
+    open fun getName() = name
+    open fun setName(n: String?) {
+        name = n
+    }
+
+    open fun getWebhook() = webhook
+    open fun setWebhook(n: String?) {
+        webhook = webhook
+    }
 
     //private var webhooks: Listof<String>
 
@@ -29,8 +42,13 @@ open class User {
     open fun getId() = id
 
 
-    constructor (i: Long) {
+    constructor (i: Long?) {
         id = i
+    }
+
+    constructor (i: Long, name: String?) {
+        id = i
+        setName(name)
     }
 
     constructor() {

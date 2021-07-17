@@ -16,5 +16,23 @@ class UserService {
         em.persist(u)
         return u
     }
+
+    fun getUser(uid: Long): User {
+       val query = em.createQuery("""
+                select new org.acme.models.User(u.id, u.name)
+                from org.acme.models.User u
+                where u.id = :uid
+       """.trimIndent(), User::class.java)
+        return query.setParameter("uid", uid).singleResult
+    }
+
+    fun getUserByWebhook(webhook: String): User {
+        val query = em.createQuery("""
+                select new org.acme.models.User(u.id, u.name)
+                from org.acme.models.User u
+                where u.webhook = :wh
+       """.trimIndent(), User::class.java)
+        return query.setParameter("wh", webhook).singleResult
+    }
 }
 

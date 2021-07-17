@@ -13,16 +13,22 @@ open class Message {
     private var message: String? = null
 
     @ManyToOne(optional = true, cascade = [MERGE], fetch = FetchType.LAZY)
-    private var sender: Contact? = null
+    private var sender: User? = null
 
     @ManyToOne(optional = true, cascade = [MERGE], fetch = FetchType.LAZY)
-    private var receiver: Contact? = null
+    private var receiver: User? = null
 
     //private var insertedAt: Date? = null
 
     constructor(m: String?, from: Long?, to: Long?) {
-        setSender(Contact(from))
-        setReceiver(Contact(to))
+        setSender(User(from))
+        setReceiver(User(to))
+        setMessage(m)
+    }
+
+    constructor(m: String?, from: User, to: User) {
+        setSender(from)
+        setReceiver(to)
         setMessage(m)
     }
 
@@ -40,13 +46,13 @@ open class Message {
 
     open fun getId() = id
 
-    open fun setSender(c: Contact) {
+    open fun setSender(c: User) {
         sender = c
     }
 
     open fun getSender() = sender
 
-    open fun setReceiver(c: Contact) {
+    open fun setReceiver(c: User) {
         receiver = c
     }
 

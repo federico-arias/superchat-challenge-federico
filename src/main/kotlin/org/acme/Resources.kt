@@ -1,10 +1,6 @@
 package org.acme
 
-//import org.acme.models.Contact
-import org.acme.models.Contact
-import org.acme.models.ContactService
-import org.acme.models.Message
-import org.acme.models.MessageService
+import org.acme.models.*
 import org.acme.rest.client.BitcoinService
 import org.eclipse.microprofile.rest.client.inject.RestClient
 import org.jboss.resteasy.annotations.jaxrs.PathParam
@@ -18,9 +14,6 @@ import javax.validation.constraints.NotEmpty
 import javax.validation.constraints.NotNull
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
-
-//import javax.ws.rs.Produces
-//import javax.ws.rs.core.MediaType
 
 class ContactDto constructor(@NotNull @NotEmpty var name: String? = null, var phone: String? = null, var user: Long? = null)
 class MessageDto constructor(var message: String? = null, var sender: Long? = null, var receiver: Long? = null)
@@ -38,23 +31,50 @@ class GreetingResource {
     internal lateinit var messageRepository: MessageService
 
     @Inject
+    internal lateinit var userRepository: UserService
+
+    @Inject
     internal lateinit var validator: Validator
 
     @POST
     @Path("users/{uid}/messages")
     @Transactional
-    fun addMessage(message: MessageDto, @PathParam uid: Long): Message {
+    fun addMessage(message: MessageDto, @PathParam uid: Long): MessageDto {
+        if (message.message !is String)
+            throw BadRequestException("message missing")
+        val user = userRepository.getUser(uid)
         // todo: cache this until end of day
+        // todo: this could be dry-er
         val rate = bitcoin.getCurrentPrice("333e57d98c9cb8cc3ca6872903bf3327").rates?.BTC
         message.receiver = uid
-        message.message = message.message // replace(rate, rate)
-        return messageRepository.addMessage(message)
+        message.message = message.message?.replace("\$rate\$", rate.toString())
+        message.message = message.message?.replace("\$rate\$", rate.toString())
+        message.message = message.message?.replace("\$name\$", user.getName() ?: "")
+        messageRepository.addMessage(message)
+        return message
+    }
+    @POST
+    @Path("webhook/users/{webhook}/messages")
+    @Transactional
+    fun addMessage(message: MessageDto, @PathParam webhook: String): MessageDto {
+        if (message.message !is String)
+            throw BadRequestException("message missing")
+        val user = userRepository.getUserByWebhook(webhook)
+        // todo: cache this until end of day
+        // todo: this could be dry-er
+        val rate = bitcoin.getCurrentPrice("333e57d98c9cb8cc3ca6872903bf3327").rates?.BTC
+        message.receiver = user.getId()
+        message.message = message.message?.replace("\$rate\$", rate.toString())
+        message.message = message.message?.replace("\$rate\$", rate.toString())
+        message.message = message.message?.replace("\$name\$", user.getName() ?: "")
+        messageRepository.addMessage(message)
+        return message
     }
 
     @GET
     @Path("users/{uid}/messages")
-    fun getMessages(@PathParam uid: Long?, @QueryParam contactid: Long?): List<Message>{
-        return messageRepository.getConversation(uid, contactid)
+    fun getMessages(@PathParam uid: Long?, @QueryParam("user") userId: Long?): List<Message>{
+        return messageRepository.getConversation(uid, userId)
     }
 
     @GET
@@ -66,6 +86,19 @@ class GreetingResource {
         //} catch(e: Exception) {
             //throw NotFoundException("no user ")
         //}
+    }
+
+    @GET
+    @Path("test")
+    fun testEndpoint(@QueryParam("message") message: String): String {
+        val rate = bitcoin.getCurrentPrice("333e57d98c9cb8cc3ca6872903bf3327").rates?.BTC
+        if (rate !is Float) {
+            throw NotFoundException("bitcoin service error")
+        }
+        if (message !is String){
+            throw BadRequestException("message missing")
+        }
+        return message.replace("\$price", rate.toString())
     }
 
     @POST

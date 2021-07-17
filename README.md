@@ -27,38 +27,40 @@ List all contacts for user of given _id_.
 curl -s localhost:1313/api/v1/users/1/contacts
 ```
 
-## [POST] /users/{id}/messages?contact=contact_id
+## [POST] /users/{id}/messages
 
-Adds a new message to the conversation with _contact_ for
-user of id 1.
+Adds a new message to the conversation with other user. 
 
-## [GET] /users/{id}/conversations?contact=id
+```bash
+curl -v -X POST localhost:1313/api/v1/users/1/messages \
+  -H 'content-type: application/json' \
+  --data-raw '{"message": "Hi, $name$ this is the rate of Bitcoin: $rate$" USD, "sender": 2}'
+```
+
+## [GET] /users/{id}/conversations?user=id
 
 List all messages in the conversation.
 
-## [POST] /webhook/users/{secret-uuuid}/messages
+```bash
+curl -v -X GET -G -d 'user=2' 'localhost:1313/api/v1/users/1/messages'
+```
+
+
+## [POST] /webhook/users/{userwebhook}/messages
 
 Receive messages from an external service via a webhook
 
 ```bash
-curl -s -H 'content-type: application/json' \
-	--data-raw '{ "message": "Hi ${name}. Did you know Bitcoin was valued at ${bcp} USD today?"}' \
-	localhost:1313/api/v1/webhook/users/{secret-uuuid}/messages
-```
-
-```java
-StringTemplate hello = new StringTemplate("Hello, $name$", DefaultTemplateLexer.class);
-hello.setAttribute("name", "World");
-System.out.println(hello.toString());
+curl -v -H 'content-type: application/json' \
+  --data-raw '{"message": "Hi, $name$ this is the rate of Bitcoin: $rate$ USD", "sender": 2}' \
+	localhost:1313/api/v1/webhook/users/12345abc/messages
 ```
 
 # To do
 
 - Input data validation
 - Structured API error response
+- Error handling
 - Authorization
-- Consider using XMPP / websockets
 - Unit testing
-- GraalVM
-- CI/CD
-- Swagger
+  
